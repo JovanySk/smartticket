@@ -1,0 +1,19 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt -r requirements-dev.txt
+      - name: Unit + API tests (offline fixture)
+        run: pytest -q
+      - name: Train on the real dataset and enforce the quality gate
+        run: python -m smartticket.train && pytest -q tests/test_smartticket.py::test_real_model_quality_gate
