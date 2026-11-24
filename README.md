@@ -46,24 +46,42 @@ Also available:
 
 Inputs are validated (body 10–5,000 characters). If the model is missing, the API returns 503.
 
+## Web demo
+
+`uvicorn smartticket.api:app` also serves a single-page demo at **http://localhost:8000/** (plain HTML, CSS and JS in `smartticket/static/`, no build step, so the Docker image is unchanged). It calls the same public endpoints as any client:
+
+- **Single ticket**: write a subject and message or pick one of five sample tickets. You get type, queue and priority with confidence, the queue top 3, the request latency, and the routing decision: *auto-routed* when queue confidence reaches the review threshold, *needs human review* otherwise.
+- **Batch**: paste up to 10 tickets (one per line, `subject | message`, or a JSON array) and get a table with review flags.
+- **Model card**: training date, ticket count and macro F1 against the majority-class baseline, read from `GET /model-info`.
+- English and Spanish UI, dark and light themes, keyboard accessible, responsive.
+
+| Auto-routed | Needs human review |
+|---|---|
+| ![Auto-routed billing ticket](docs/screenshots/01-auto-routed-dark.png) | ![Ambiguous ticket held for review](docs/screenshots/02-needs-review-dark.png) |
+| **Batch mode** | **Light theme** |
+| ![Batch results with review flags](docs/screenshots/03-batch-dark.png) | ![Light theme](docs/screenshots/05-auto-routed-light.png) |
+
+<p><img src="docs/screenshots/04-mobile-dark.png" alt="Mobile layout" width="300"></p>
+
 ## Run it
 
 ```bash
 pip install -r requirements.txt
 python -m smartticket.train          # downloads the dataset and trains (~20 s), writes models/ and reports/
-uvicorn smartticket.api:app --reload # http://localhost:8000/docs
-pytest -q                            # 14 tests
+uvicorn smartticket.api:app --reload # demo at http://localhost:8000/, API docs at /docs
+pytest -q                            # 15 tests
 # or: docker build -t smartticket . && docker run -p 8000:8000 smartticket
 ```
 
 ## Tests
 
-There are **14 pytest tests**. They train on a small offline fixture, so they need no network, and they cover:
+There are **15 pytest tests**. They train on a small offline fixture, so they need no network, and they cover:
 - training and metrics;
 - every endpoint and input validation;
 - batch limits;
 - the review flag;
-- the 503 path.
+- the 503 path;
+- the web demo being served.
 
 CI also retrains on the real dataset and runs a **quality gate**: type macro F1 ≥ 0.80, queue ≥ 0.45, and every target must be at least twice its baseline.
 

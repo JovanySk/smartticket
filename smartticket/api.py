@@ -7,6 +7,8 @@ from pathlib import Path
 
 import joblib
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from .training import TARGETS, ticket_text
@@ -14,6 +16,7 @@ from .training import TARGETS, ticket_text
 MODEL_PATH = Path(os.getenv("SMARTTICKET_MODEL", "models/model.joblib"))
 # below this queue confidence the ticket is flagged for a human instead of being auto-routed
 REVIEW_THRESHOLD = float(os.getenv("SMARTTICKET_REVIEW_THRESHOLD", "0.5"))
+STATIC_DIR = Path(__file__).parent / "static"
 
 
 class Ticket(BaseModel):
@@ -61,6 +64,16 @@ def predict_one(bundle: dict, ticket: Ticket) -> Prediction:
 
 app = FastAPI(title="SmartTicket", version="1.0.0",
               description="Classifies support tickets by type, queue and priority (TF-IDF + Logistic Regression).")
+
+
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+def web_demo() -> HTMLResponse:
+    """Single-page demo UI. The review threshold is injected so the page shows the live value."""
+    html = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
+    return HTMLResponse(html.replace("__REVIEW_THRESHOLD__", f"{REVIEW_THRESHOLD:g}"))
 
 
 def bundle_or_503() -> dict:

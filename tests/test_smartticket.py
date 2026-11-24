@@ -137,3 +137,13 @@ def test_real_model_quality_gate():
     assert m["queue"]["macro_f1"] >= 0.45
     for t in TARGETS:
         assert m[t]["macro_f1"] > 2 * m[t]["baseline_macro_f1"]
+
+
+def test_web_demo_is_served(client):
+    res = client.get("/")
+    assert res.status_code == 200
+    assert res.headers["content-type"].startswith("text/html")
+    assert "SmartTicket" in res.text and "__REVIEW_THRESHOLD__" not in res.text
+    for asset in ("/static/app.js", "/static/styles.css"):
+        assert client.get(asset).status_code == 200
+    assert client.get("/docs").status_code == 200
