@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <!-- @include head -->
+  <title data-i18n="landing.title">SmartTicket · Mesa de ayuda con IA</title>
+  <meta name="description" data-i18n-attr="content:landing.description" content="Clasifica tickets de soporte por tipo, área y prioridad. Si la IA no está segura, el ticket pasa a una persona.">
+  <link rel="stylesheet" href="/static/css/landing.css">
+  <script src="/static/js/landing.js" defer></script>
+</head>
+<body class="page-landing">
+  <!-- @include sprite -->
+  <a class="skip" href="#clasificar" data-i18n="a11y.skip">Saltar al formulario</a>
+
+  <!-- @include nav -->
+
+  <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-bg" aria-hidden="true">
+      <span class="qm qm-1">?</span><span class="qm qm-2">?</span><span class="qm qm-3">?</span><span class="qm qm-4">?</span>
+      <span class="qm qm-5">?</span><span class="qm qm-6">?</span><span class="qm qm-7">?</span><span class="qm qm-8">?</span>
+      <span class="qm qm-9">?</span><span class="qm qm-10">?</span>
+    </div>
+        <div class="hero-head rise">
+          <span class="tag tag-hero"><span class="tag-text" data-i18n="hero.tag">Mesa de ayuda</span><span class="tag-num" data-i18n="hero.tagNum">IA</span></span>
+          <h1 id="hero-title" class="display hero-title" data-i18n-html="hero.title">Hola. Estamos aquí para [[ayudarte]].</h1>
+          <p class="hero-lede" data-i18n="hero.lede">Cuéntanos qué pasó. Nuestra IA lee tu ticket, decide a qué área va y qué tan urgente es. Si no está segura, te atiende una persona.</p>
+        </div>
+
+        <div class="stage" id="clasificar">
+          <svg class="routes" aria-hidden="true"></svg>
+
+          <figure class="agent agent-ana" data-agent="ana" data-queues="IT Support|Technical Support|Product Support">
+            <img src="/static/img/agente-ana.webp" alt="" width="150" height="150" loading="eager">
+            <figcaption class="agent-label">Ana · <span data-i18n="agents.ana">Soporte TI</span></figcaption>
+          </figure>
+          <figure class="agent agent-luis" data-agent="luis" data-queues="Service Outages and Maintenance|General Inquiry|Human Resources">
+            <img src="/static/img/agente-luis.webp" alt="" width="150" height="150">
+            <figcaption class="agent-label">Luis · <span data-i18n="agents.luis">Operaciones</span></figcaption>
+          </figure>
+          <figure class="agent agent-marta" data-agent="marta" data-queues="Billing and Payments|Sales and Pre-Sales">
+            <img src="/static/img/agente-marta.webp" alt="" width="150" height="150">
+            <figcaption class="agent-label">Marta · <span data-i18n="agents.marta">Facturación</span></figcaption>
+          </figure>
+          <figure class="agent agent-diego" data-agent="diego" data-queues="Returns and Exchanges|Customer Service">
+            <img src="/static/img/agente-diego.webp" alt="" width="150" height="150">
+            <figcaption class="agent-label">Diego · <span data-i18n="agents.diego">Devoluciones</span></figcaption>
+          </figure>
+
+          <span class="node node-ana" aria-hidden="true"><svg><use href="#i-at"/></svg></span>
+          <span class="node node-luis" aria-hidden="true"><svg><use href="#i-gear"/></svg></span>
+          <span class="node node-marta" aria-hidden="true"><svg><use href="#i-dollar"/></svg></span>
+          <span class="node node-diego" aria-hidden="true"><svg><use href="#i-return"/></svg></span>
+
+          <form class="composer rise rise-2" id="composer" novalidate>
+            <div class="composer-head">
+              <div class="mode-tabs" role="tablist" data-i18n-attr="aria-label:composer.modes" aria-label="Modo">
+                <button type="button" role="tab" id="tab-one" aria-selected="true" aria-controls="mode-one" data-i18n="composer.new">Ticket nuevo</button>
+                <button type="button" role="tab" id="tab-batch" aria-selected="false" aria-controls="mode-batch" tabindex="-1" data-i18n="composer.batch">Lote de tickets</button>
+              </div>
+              <span class="composer-code mono" id="composer-code" aria-live="polite"></span>
+            </div>
+
+            <div id="mode-one" role="tabpanel" aria-labelledby="tab-one" class="mode">
+              <label class="field-label" for="subject" data-i18n="composer.subject">Asunto</label>
+              <input class="input" id="subject" name="subject" maxlength="300" autocomplete="off" data-i18n-attr="placeholder:composer.subjectPh" placeholder="Charged twice for my subscription">
+              <div class="perf" aria-hidden="true"></div>
+              <div class="label-row">
+                <label class="field-label" for="body" data-i18n="composer.body">¿Qué pasó?</label>
+                <span class="counter mono" id="counter">0 / 5000</span>
+              </div>
+              <textarea class="input" id="body" name="body" rows="2" maxlength="5000" aria-describedby="body-hint body-error" data-i18n-attr="placeholder:composer.bodyPh" placeholder="This month I saw two identical charges on my card. Please refund the duplicate payment."></textarea>
+              <p class="hint" id="body-hint" data-i18n="composer.hint">El modelo se entrenó con tickets en inglés: escribe en inglés para mejores resultados.</p>
+              <p class="field-error" id="body-error" role="alert"></p>
+              <div class="composer-foot">
+                <div class="chips" role="group" data-i18n-attr="aria-label:composer.examples" aria-label="Ejemplos">
+                  <button type="button" class="chip" data-example="billing" data-i18n="composer.exBilling">Cobro doble</button>
+                  <button type="button" class="chip" data-example="vpn" data-i18n="composer.exVpn">Se cayó la VPN</button>
+                  <button type="button" class="chip" data-example="refund" data-i18n="composer.exRefund">Devolución</button>
+                </div>
+                <button type="submit" class="btn btn-ink" id="send"><span data-i18n="composer.send">Enviar ticket</span><svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+              </div>
+            </div>
+
+            <div id="mode-batch" role="tabpanel" aria-labelledby="tab-batch" class="mode" hidden>
+              <span id="lote" class="anchor" aria-hidden="true"></span>
+              <div class="label-row">
+                <label class="field-label" for="batch" data-i18n="composer.batchLabel">Hasta 10 tickets, uno por línea</label>
+                <span class="counter mono" id="batch-counter">0 / 10</span>
+              </div>
+              <textarea class="input mono-input" id="batch" rows="5" aria-describedby="batch-hint batch-error" spellcheck="false" placeholder="Invoice missing | I did not receive the invoice for October.&#10;VPN down | Nobody in the office can connect to the VPN since this morning."></textarea>
+              <p class="hint" id="batch-hint" data-i18n="composer.batchHint">Formato: asunto | mensaje. También acepta un arreglo JSON con subject y body.</p>
+              <p class="field-error" id="batch-error" role="alert"></p>
+              <div class="composer-foot">
+                <button type="button" class="chip" id="batch-sample" data-i18n="composer.batchSample">Cargar ejemplo</button>
+                <button type="button" class="btn btn-ink" id="batch-send"><span data-i18n="composer.batchSend">Enviar lote</span><svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+              </div>
+            </div>
+          </form>
+
+          <aside class="bubble" id="bubble" aria-live="polite">
+            <div class="bubble-head">
+              <span class="bubble-avatar" aria-hidden="true"><svg><use href="#i-sparkle"/></svg></span>
+              <strong data-i18n="bubble.name">Agente IA</strong>
+              <span class="bubble-ms mono" id="bubble-ms"></span>
+            </div>
+            <p class="bubble-text" id="bubble-text" data-i18n="bubble.idle">Escribe tu ticket y te digo a qué área va.</p>
+          </aside>
+
+          <img class="desk" src="/static/img/agente-escritorio.webp" alt="" width="200" height="291">
+        </div>
+      </section>
+
+      <section class="result-section" id="resultado" aria-labelledby="result-title">
+        <div class="wrap result-grid">
+          <div class="result-copy reveal">
+            <p class="eyebrow eyebrow-coral" data-i18n="result.eyebrow">Tu ticket, ya clasificado</p>
+            <h2 id="result-title" class="display h2" data-i18n="result.title">Sale con área, tipo y urgencia.</h2>
+            <p class="lede-dark" data-i18n="result.lede">Cuando la IA está segura, el ticket llega solo al área correcta. Si duda, lo revisa una persona de tu equipo antes de asignarlo. Nada se queda en el limbo.</p>
+            <ul class="legend">
+              <li><span class="sq sq-teal" aria-hidden="true"></span><div><strong data-i18n="result.autoTitle">Enviado solo</strong><span data-i18n="result.autoText">La IA está segura: llega directo al área correcta.</span></div></li>
+              <li><span class="sq sq-coral" aria-hidden="true"></span><div><strong data-i18n="result.reviewTitle">Revisión humana</strong><span data-i18n="result.reviewText">La IA duda: tu equipo lo revisa y lo asigna.</span></div></li>
+            </ul>
+            <a class="btn btn-ink" href="#clasificar" data-focus="subject"><span data-i18n="result.try">Probar con mi ticket</span><svg class="btn-arrow btn-arrow-up" aria-hidden="true"><use href="#i-arrow-up"/></svg></a>
+          </div>
+          <div class="result-stubs" id="stubs" data-showcase="{{showcase}}">
+            <p class="sr-only" id="result-live" aria-live="polite"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="who-section" id="para-quien" aria-labelledby="who-title">
+        <div class="wrap">
+          <div class="who-head">
+            <div>
+              <p class="eyebrow eyebrow-coral" data-i18n="who.eyebrow">Para quién es</p>
+              <h2 id="who-title" class="display h2" data-i18n="who.title">Para cualquier equipo que recibe tickets.</h2>
+            </div>
+            <p class="lede-dark" data-i18n="who.lede">Se conecta por API con tu formulario web, tu correo o tu chat. Tu equipo sigue usando su sistema; SmartTicket decide a dónde va cada ticket.</p>
+          </div>
+          <ul class="who-grid">
+            <li class="who-card reveal"><span class="who-ic ic-teal" aria-hidden="true"><svg><use href="#i-bag"/></svg></span><div><h3 data-i18n="who.shopsTitle">Tiendas en línea</h3><p data-i18n="who.shopsText">Pagos, envíos y devoluciones.</p></div>
+              <p class="route"><q data-i18n="who.shopsQuote">Cobro doble</q><svg aria-hidden="true"><use href="#i-arrow"/></svg><span class="area area-teal" data-i18n="queue.Billing and Payments">Facturación y pagos</span></p></li>
+            <li class="who-card reveal"><span class="who-ic ic-lav" aria-hidden="true"><svg><use href="#i-bank"/></svg></span><div><h3 data-i18n="who.banksTitle">Bancos y fintech</h3><p data-i18n="who.banksText">Tarjetas, transferencias y aclaraciones.</p></div>
+              <p class="route"><q data-i18n="who.banksQuote">Cuenta para empresa</q><svg aria-hidden="true"><use href="#i-arrow"/></svg><span class="area area-lav" data-i18n="queue.Sales and Pre-Sales">Ventas y preventa</span></p></li>
+            <li class="who-card reveal"><span class="who-ic ic-coral" aria-hidden="true"><svg><use href="#i-wifi"/></svg></span><div><h3 data-i18n="who.telcoTitle">Internet y telefonía</h3><p data-i18n="who.telcoText">Fallas de servicio y cambios de plan.</p></div>
+              <p class="route"><q data-i18n="who.telcoQuote">Sin internet</q><svg aria-hidden="true"><use href="#i-arrow"/></svg><span class="area area-coral" data-i18n="queue.Service Outages and Maintenance">Caídas y mantenimiento</span></p></li>
+            <li class="who-card reveal"><span class="who-ic ic-teal" aria-hidden="true"><svg><use href="#i-code"/></svg></span><div><h3 data-i18n="who.softTitle">Software y apps</h3><p data-i18n="who.softText">Accesos, errores y nuevas funciones.</p></div>
+              <p class="route"><q data-i18n="who.softQuote">No puedo iniciar sesión</q><svg aria-hidden="true"><use href="#i-arrow"/></svg><span class="area area-teal" data-i18n="queue.Technical Support">Soporte técnico</span></p></li>
+            <li class="who-card reveal"><span class="who-ic ic-lav" aria-hidden="true"><svg><use href="#i-school"/></svg></span><div><h3 data-i18n="who.schoolTitle">Escuelas y universidades</h3><p data-i18n="who.schoolText">Inscripciones, plataformas y pagos.</p></div>
+              <p class="route"><q data-i18n="who.schoolQuote">Error en mi inscripción</q><svg aria-hidden="true"><use href="#i-arrow"/></svg><span class="area area-lav" data-i18n="queue.Customer Service">Atención al cliente</span></p></li>
+            <li class="who-card reveal"><span class="who-ic ic-coral" aria-hidden="true"><svg><use href="#i-users"/></svg></span><div><h3 data-i18n="who.teamsTitle">Equipos internos</h3><p data-i18n="who.teamsText">RR. HH., sistemas y compras.</p></div>
+              <p class="route"><q data-i18n="who.teamsQuote">Pedir vacaciones</q><svg aria-hidden="true"><use href="#i-arrow"/></svg><span class="area area-coral" data-i18n="queue.Human Resources">Recursos Humanos</span></p></li>
+          </ul>
+          <div class="connects">
+            <p class="eyebrow eyebrow-muted" data-i18n="who.connects">Se conecta con</p>
+            <ul>
+              <li><svg aria-hidden="true"><use href="#i-form"/></svg><span data-i18n="who.webForm">Formulario web</span></li>
+              <li><svg aria-hidden="true"><use href="#i-mail"/></svg><span data-i18n="who.email">Correo</span></li>
+              <li><svg aria-hidden="true"><use href="#i-chat"/></svg><span data-i18n="who.chat">Chat</span></li>
+              <li><svg aria-hidden="true"><use href="#i-code"/></svg><span>API REST</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="how-section" id="como-funciona" aria-labelledby="how-title">
+        <div class="wrap">
+          <p class="eyebrow eyebrow-coral" data-i18n="how.eyebrow">Cómo funciona</p>
+          <h2 id="how-title" class="display h2" data-i18n="how.title">Tres pasos, menos de un segundo.</h2>
+          <ol class="steps">
+            <li class="step step-teal reveal"><span class="step-n">01</span><h3 data-i18n="how.s1Title">Escribes tu ticket</h3><p data-i18n="how.s1Text">Asunto y mensaje, como se lo escribirías a soporte. Puedes mandar uno o un lote de varios.</p></li>
+            <li class="step step-lav reveal"><span class="step-n">02</span><h3 data-i18n="how.s2Title">La IA lo lee</h3><p data-i18n="how.s2Text">Decide el tipo, el área (entre 10) y la prioridad, y qué tan segura está de cada cosa.</p></li>
+            <li class="step step-coral reveal"><span class="step-n">03</span><h3 data-i18n="how.s3Title">Llega a quien debe</h3><p data-i18n="how.s3Text">Si la confianza pasa el umbral, se asigna solo; si no, entra a la fila de revisión humana.</p></li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="control-section" id="control" aria-labelledby="control-title">
+        <span class="qm-dark qm-d1" aria-hidden="true">?</span><span class="qm-dark qm-d2" aria-hidden="true">?</span>
+        <div class="wrap control-grid">
+          <div class="control-copy">
+            <p class="eyebrow eyebrow-teal" data-i18n="control.eyebrow">Tú tienes el control</p>
+            <h2 id="control-title" class="display h2 h2-light" data-i18n="control.title">Tú decides qué tan segura debe estar.</h2>
+            <p class="lede-light" data-i18n="control.lede">Sube el umbral y la IA solo envía lo que tiene muy claro. Bájalo y automatiza más tickets. Todo lo demás pasa por tu equipo.</p>
+            <ul class="stats">
+              <li class="stat reveal"><strong data-i18n="control.stat1">&lt;10 ms</strong><span data-i18n="control.stat1Label">por ticket</span><small data-i18n="control.stat1Text">medido en el servidor</small></li>
+              <li class="stat reveal"><strong>10</strong><span data-i18n="control.stat2Label">áreas</span><small data-i18n="control.stat2Text">soporte, ventas, TI, RR. HH.…</small></li>
+              <li class="stat reveal"><strong>3</strong><span data-i18n="control.stat3Label">decisiones</span><small data-i18n="control.stat3Text">tipo, área y prioridad</small></li>
+            </ul>
+          </div>
+          <div class="board reveal" id="board" data-board="{{board}}">
+            <p class="board-title mono" data-i18n="control.boardTitle">Tablero de umbrales</p>
+            <p class="board-sub mono" data-i18n="control.boardSub">medido con tickets que el modelo nunca vio</p>
+            <table class="board-table">
+              <thead><tr><th scope="col" data-i18n="control.colThreshold">Umbral</th><th scope="col" data-i18n="control.colAuto">Se envían solos</th><th scope="col" data-i18n="control.colAccuracy">Acierto</th></tr></thead>
+              <tbody id="board-rows"></tbody>
+            </table>
+            <p class="board-note" data-i18n="control.boardNote">La fila resaltada es el umbral que usa el sistema ahora.</p>
+          </div>
+        </div>
+      </section>
+  </main>
+
+  <!-- @include footer -->
+
+  <template id="tpl-stub">
+    <article class="stub" tabindex="-1">
+      <div class="stub-main">
+        <header class="stub-meta"><span class="stub-code mono"></span><span class="stub-when mono"></span></header>
+        <h3 class="stub-subject"></h3>
+        <p class="stub-for mono" data-i18n="stub.goesTo">Va para</p>
+        <p class="stub-queue display"></p>
+        <div class="stub-boxes">
+          <div class="box"><span class="box-k" data-i18n="stub.type">Tipo</span><span class="box-pct mono" data-k="type"></span><strong data-v="type"></strong></div>
+          <div class="box"><span class="box-k" data-i18n="stub.area">Área</span><span class="box-pct mono" data-k="queue"></span><strong data-v="queue"></strong></div>
+          <div class="box"><span class="box-k" data-i18n="stub.priority">Prioridad</span><span class="box-pct mono" data-k="priority"></span><strong data-v="priority"></strong></div>
+        </div>
+        <p class="stub-words"><span data-i18n="stub.words">Por las palabras:</span></p>
+        <p class="stub-others mono" data-i18n="stub.others">Otras opciones</p>
+        <ul class="stub-bars"></ul>
+      </div>
+      <div class="stub-side">
+        <p class="mono stub-conf-k" data-i18n="stub.confidence">Confianza</p>
+        <p class="stub-conf display"></p>
+        <div class="meter"><span class="meter-fill"></span><span class="meter-mark"></span></div>
+        <p class="mono stub-thr"></p>
+        <span class="stamp"></span>
+      </div>
+    </article>
+  </template>
+  <template id="tpl-mini">
+    <article class="stub stub-mini">
+      <div class="stub-main">
+        <span class="stub-code mono"></span>
+        <h3 class="stub-subject"></h3>
+        <p class="stub-maybe"></p>
+        <p class="stub-why mono"></p>
+      </div>
+      <div class="stub-side">
+        <p class="stub-conf display"></p>
+        <span class="stamp"></span>
+      </div>
+    </article>
+  </template>
+</body>
+</html>

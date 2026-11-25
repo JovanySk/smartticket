@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <!-- @include head -->
+  <meta name="session-csrf" content="{{session_csrf}}">
+  <meta name="robots" content="noindex">
+  <title data-i18n="panel.pageTitle">Panel · SmartTicket</title>
+  <link rel="stylesheet" href="/static/css/panel.css">
+  <script src="/static/js/panel.js" defer></script>
+</head>
+<body class="page-panel" data-section="{{section}}">
+  <!-- @include sprite -->
+  <a class="skip" href="#main" data-i18n="a11y.skipMain">Saltar al contenido</a>
+  <div class="panel">
+    <aside class="side" id="side">
+      <div class="side-top">
+        <a class="brand" href="/"><svg class="brand-mark" aria-hidden="true"><use href="#i-logo"/></svg><span>SmartTicket</span></a>
+        <button type="button" class="side-close" id="side-close" data-i18n-attr="aria-label:panel.closeMenu" aria-label="Cerrar menú"><svg aria-hidden="true"><use href="#i-close"/></svg></button>
+      </div>
+      <nav class="side-nav" data-i18n-attr="aria-label:panel.navLabel" aria-label="Panel">
+        <p class="side-group" data-i18n="panel.groupWork">Trabajo</p>
+        <a href="/panel" data-sec="revision"><svg aria-hidden="true"><use href="#i-inbox"/></svg><span data-i18n="panel.navReview">Bandeja de revisión</span><span class="count count-teal" data-count="revision"></span></a>
+        <a href="/panel/enviados" data-sec="enviados"><svg aria-hidden="true"><use href="#i-check"/></svg><span data-i18n="panel.navSent">Enviados solos</span><span class="count" data-count="enviado"></span></a>
+        <a href="/panel/todos" data-sec="todos"><svg aria-hidden="true"><use href="#i-list"/></svg><span data-i18n="panel.navAll">Todos los tickets</span></a>
+        <div class="admin-only" hidden>
+          <p class="side-group" data-i18n="panel.groupAdmin">Administración</p>
+          <a href="/panel/umbral" data-sec="umbral"><svg aria-hidden="true"><use href="#i-sliders"/></svg><span data-i18n="panel.navThreshold">Umbral y áreas</span></a>
+          <a href="/panel/equipo" data-sec="equipo"><svg aria-hidden="true"><use href="#i-users"/></svg><span data-i18n="panel.navTeam">Equipo</span></a>
+          <a href="/panel/mensajes" data-sec="mensajes"><svg aria-hidden="true"><use href="#i-mail"/></svg><span data-i18n="panel.navMessages">Mensajes de contacto</span><span class="count count-coral" data-count="unread"></span></a>
+        </div>
+      </nav>
+      <div class="side-user">
+        <span class="avatar" id="avatar" aria-hidden="true"></span>
+        <div class="side-user-text"><strong id="user-name"></strong><span id="user-role"></span></div>
+      </div>
+      <div class="side-actions">
+        <a href="/panel/cuenta" data-sec="cuenta"><svg aria-hidden="true"><use href="#i-key"/></svg><span data-i18n="panel.navAccount">Mi contraseña</span></a>
+        <button type="button" id="logout"><svg aria-hidden="true"><use href="#i-logout"/></svg><span data-i18n="panel.logout">Cerrar sesión</span></button>
+      </div>
+      <div class="side-lang on-dark"><!-- @include langmenu --></div>
+    </aside>
+
+    <div class="main-wrap">
+      <header class="mobile-bar">
+        <button type="button" class="menu-btn" id="menu-btn" aria-controls="side" aria-expanded="false" data-i18n-attr="aria-label:nav.menu" aria-label="Menú"><svg aria-hidden="true"><use href="#i-menu"/></svg></button>
+        <a class="brand" href="/"><svg class="brand-mark" aria-hidden="true"><use href="#i-logo"/></svg><span>SmartTicket</span></a>
+      </header>
+      <main class="main" id="main" tabindex="-1">
+        <p class="loading" data-i18n="panel.loading">Cargando…</p>
+      </main>
+      <!-- @include footer-compact -->
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

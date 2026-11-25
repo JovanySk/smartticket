@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <!-- @include head -->
+  <title data-i18n="login.pageTitle">Entrar · SmartTicket</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="/static/css/login.css">
+  <script src="/static/js/login.js" defer></script>
+</head>
+<body class="page-login">
+  <!-- @include sprite -->
+  <div class="login">
+    <section class="cabinet-side" data-i18n-attr="aria-label:login.headline" aria-label="Cada ticket, en manos correctas.">
+      <div class="cabinet-head">
+        <a class="brand" href="/"><svg class="brand-mark" aria-hidden="true"><use href="#i-logo"/></svg><span>SmartTicket</span></a>
+        <p class="display cab-title" data-i18n="login.headline">Cada ticket, en manos correctas.</p>
+        <p class="cab-sub" data-i18n="login.sub">La IA clasifica. Tu equipo decide cuando hace falta.</p>
+      </div>
+      <div class="cabinet" aria-hidden="true">
+        <img src="/static/img/clasificador.webp" alt="" width="1024" height="1280">
+        <span class="plate plate-1"><i class="dot dot-teal"></i><span data-i18n="login.plate1">Facturación</span></span>
+        <span class="plate plate-2"><i class="dot dot-lav"></i><span data-i18n="login.plate2">Soporte TI</span></span>
+        <span class="plate plate-3"><i class="dot dot-coral"></i><span data-i18n="login.plate3">A revisión</span></span>
+        <div class="flying" data-to="1">
+          <div class="fly-main"><span class="fly-code">ST-20491</span><strong data-i18n="login.t1">Cobro doble</strong><span class="fly-ago" data-i18n="login.ago">hace 2 s</span></div>
+          <div class="fly-side"></div>
+          <span class="fly-stamp" data-i18n="login.plate1">Facturación</span>
+        </div>
+        <div class="flying" data-to="2">
+          <div class="fly-main"><span class="fly-code">ST-20492</span><strong data-i18n="login.t2">La VPN no conecta</strong><span class="fly-ago" data-i18n="login.ago">hace 2 s</span></div>
+          <div class="fly-side"></div>
+          <span class="fly-stamp" data-i18n="login.plate2">Soporte TI</span>
+        </div>
+        <div class="flying review" data-to="3">
+          <div class="fly-main"><span class="fly-code">ST-20493</span><strong data-i18n="login.t3">Vacaciones</strong><span class="fly-ago" data-i18n="login.ago">hace 2 s</span></div>
+          <div class="fly-side"></div>
+          <span class="fly-stamp" data-i18n="login.plate3">A revisión</span>
+        </div>
+      </div>
+    </section>
+
+    <main class="login-side" id="main">
+      <div class="login-top on-dark">
+        <a class="brand brand-mobile" href="/"><svg class="brand-mark" aria-hidden="true"><use href="#i-logo"/></svg><span>SmartTicket</span></a>
+        <!-- @include langmenu -->
+      </div>
+
+      <form class="login-card" id="login-form" novalidate>
+        <span class="tag"><span class="tag-text" data-i18n="login.tag">Turno de soporte</span><span class="tag-num">07</span></span>
+        <h1 class="display login-title" data-i18n="login.title">Inicia sesión</h1>
+        <p class="login-lede" data-i18n="login.lede">Entra al panel para revisar y asignar los tickets que la IA dejó en duda.</p>
+
+        <div class="field">
+          <label for="email" data-i18n="login.email">Correo de trabajo</label>
+          <input class="dark-input" id="email" name="email" type="email" autocomplete="username" required maxlength="254" data-i18n-attr="placeholder:login.emailPh" placeholder="agente@tuempresa.com">
+        </div>
+        <div class="field">
+          <div class="label-row">
+            <label for="password" data-i18n="login.password">Contraseña</label>
+            <button type="button" class="link-btn" id="forgot" aria-expanded="false" aria-controls="forgot-note" data-i18n="login.forgot">¿Olvidaste tu contraseña?</button>
+          </div>
+          <div class="pw-wrap">
+            <input class="dark-input" id="password" name="password" type="password" autocomplete="current-password" required maxlength="200">
+            <button type="button" class="pw-toggle" id="pw-toggle" aria-controls="password" aria-pressed="false" data-i18n="login.show">Mostrar</button>
+          </div>
+          <p class="forgot-note" id="forgot-note" hidden data-i18n="login.forgotText">Pide a un administrador de tu equipo que te asigne una contraseña temporal desde la sección Equipo. Al entrar, te pediremos cambiarla.</p>
+        </div>
+        <label class="check">
+          <input type="checkbox" id="remember" name="remember">
+          <span data-i18n="login.remember">Mantener sesión iniciada</span>
+        </label>
+        <p class="login-error" id="login-error" role="alert"></p>
+
+        <div class="perf perf-dark" aria-hidden="true"></div>
+
+        <button type="submit" class="btn-enter" id="enter">
+          <span data-i18n="login.submit">Entrar al panel</span>
+          <span class="enter-circle" aria-hidden="true"><svg><use href="#i-arrow"/></svg></span>
+        </button>
+        <p class="dev-hint" data-dev="{{dev}}"><span data-i18n="login.devHint">Modo desarrollo. Cuentas de prueba:</span> <code>admin@smartticket.test</code> / <code>Admin123!</code> · <code>agente@smartticket.test</code> / <code>Agente123!</code></p>
+      </form>
+
+      <p class="login-foot"><span data-i18n="footer.rights">© 2026 SmartTicket. Todos los derechos reservados.</span> <a href="/" data-i18n="login.back">Volver al inicio</a></p>
+    </main>
+  </div>
+</body>
+</html>

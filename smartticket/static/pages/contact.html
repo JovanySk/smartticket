@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <!-- @include doc-head -->
+  <title data-i18n="contact.pageTitle">Contacto · SmartTicket</title>
+</head>
+<body class="page-doc">
+  <!-- @include sprite -->
+  <a class="skip" href="#main" data-i18n="a11y.skipMain">Saltar al contenido</a>
+  <!-- @include nav -->
+  <header class="doc-hero">
+    <div class="wrap doc-hero-inner">
+      <span class="tag"><span class="tag-text" data-i18n="contact.tag">Contacto</span><span class="tag-num">@</span></span>
+      <h1 class="display doc-title" data-i18n="contact.title">Escríbenos</h1>
+      <p class="doc-lede" data-i18n="contact.lede">Dudas, una demo para tu equipo o un error que encontraste. Te respondemos por correo.</p>
+    </div>
+  </header>
+  <main id="main" class="doc wrap">
+    <form class="contact-card" id="contact-form" novalidate>
+      <div class="contact-row">
+        <div class="field"><label class="field-label" for="c-name" data-i18n="contact.name">Nombre</label><input class="input" id="c-name" name="name" autocomplete="name" maxlength="120" required aria-describedby="c-name-err"><p class="field-error" id="c-name-err"></p></div>
+        <div class="field"><label class="field-label" for="c-email" data-i18n="contact.email">Correo</label><input class="input" id="c-email" name="email" type="email" autocomplete="email" maxlength="254" required aria-describedby="c-email-err"><p class="field-error" id="c-email-err"></p></div>
+      </div>
+      <div class="field"><label class="field-label" for="c-topic" data-i18n="contact.topic">Tema</label>
+        <select class="input" id="c-topic" name="topic">
+          <option value="general" data-i18n="contact.topic_general">Pregunta general</option>
+          <option value="demo" data-i18n="contact.topic_demo">Quiero una demo</option>
+          <option value="privacy" data-i18n="contact.topic_privacy">Privacidad o borrado de datos</option>
+          <option value="bug" data-i18n="contact.topic_bug">Encontré un error</option>
+        </select>
+      </div>
+      <div class="field"><label class="field-label" for="c-msg" data-i18n="contact.message">Mensaje</label><textarea class="input" id="c-msg" name="message" rows="6" maxlength="5000" required aria-describedby="c-msg-err"></textarea><p class="field-error" id="c-msg-err"></p></div>
+      <div class="hp" aria-hidden="true"><label for="c-website">Website</label><input id="c-website" name="website" tabindex="-1" autocomplete="off"></div>
+      <p class="form-status" id="c-status" role="status"></p>
+      <div class="contact-foot">
+        <p class="hint"><span data-i18n="contact.privacyHint">Usamos tus datos solo para responderte.</span> <a href="/privacy" data-i18n="contact.privacyLink">Aviso de privacidad</a></p>
+        <button type="submit" class="btn btn-ink" id="c-send"><span data-i18n="contact.send">Enviar mensaje</span><svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+      </div>
+    </form>
+    <aside class="doc-aside">
+      <p data-i18n="contact.githubText">¿Prefieres reportar un error en público?</p>
+      <a class="btn btn-ghost" href="https://github.com/JovanySk/smartticket/issues" rel="noopener" target="_blank"><svg class="ic" aria-hidden="true"><use href="#i-github"/></svg><span data-i18n="contact.githubBtn">Abrir un issue en GitHub</span></a>
+    </aside>
+  </main>
+  <div class="doc-foot"><div class="wrap"><!-- @include footer-compact --></div></div>
+</body>
+</html>

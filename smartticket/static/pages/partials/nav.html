@@ -1,0 +1,18 @@
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="/" data-i18n-attr="aria-label:nav.home" aria-label="SmartTicket, inicio"><svg class="brand-mark" aria-hidden="true"><use href="#i-logo"/></svg><span>SmartTicket</span><span class="brand-sub" data-i18n="nav.sub">mesa de ayuda</span></a>
+    <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="nav-links" data-i18n-attr="aria-label:nav.menu" aria-label="Menú"><svg aria-hidden="true"><use href="#i-menu"/></svg></button>
+    <nav class="nav-links" id="nav-links" data-i18n-attr="aria-label:nav.main" aria-label="Principal">
+      <a href="/#clasificar" data-i18n="nav.classify">Clasificar</a>
+      <a href="/#para-quien" data-i18n="nav.who">Para quién es</a>
+      <a href="/#como-funciona" data-i18n="nav.how">Cómo funciona</a>
+      <a href="/#control" data-i18n="nav.control">Control</a>
+      <a href="/docs" data-i18n="nav.api">API</a>
+    </nav>
+    <div class="nav-actions">
+      <!-- @include langmenu -->
+      <a class="nav-login" href="{{account_href}}" data-i18n="nav.login">Entrar</a>
+      <a class="btn btn-teal" href="/#clasificar" data-focus="subject"><span data-i18n="nav.try">Pruébalo</span><svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+    </div>
+  </div>
+</header>

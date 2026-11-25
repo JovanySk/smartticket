@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <!-- @include doc-head -->
+  <meta name="robots" content="noindex">
+  <title data-i18n="error.pageTitle">Página no disponible · SmartTicket</title>
+</head>
+<body class="page-doc page-error" data-code="{{code}}">
+  <!-- @include sprite -->
+  <!-- @include nav -->
+  <main id="main" class="doc-hero doc-hero-full">
+    <div class="wrap doc-hero-inner">
+      <span class="tag"><span class="tag-text" data-i18n="error.tag">Ticket perdido</span><span class="tag-num">{{code}}</span></span>
+      <h1 class="display doc-title e404" data-i18n="error.title404">Esta página no existe.</h1>
+      <h1 class="display doc-title e403" data-i18n="error.title403">Esta sección es solo para administración.</h1>
+      <p class="doc-lede e404" data-i18n="error.text404">Revisa la dirección o vuelve al inicio.</p>
+      <p class="doc-lede e403" data-i18n="error.text403">Tu cuenta no tiene permiso para verla. Si la necesitas, pídesela a un administrador.</p>
+      <p class="error-actions"><a class="btn btn-teal" href="/"><span data-i18n="error.home">Ir al inicio</span><svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow"/></svg></a><a class="btn btn-outline-light e403" href="/panel" data-i18n="error.panel">Volver al panel</a></p>
+    </div>
+  </main>
+  <div class="doc-foot"><div class="wrap"><!-- @include footer-compact --></div></div>
+</body>
+</html>

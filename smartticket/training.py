@@ -17,6 +17,8 @@ from sklearn.pipeline import Pipeline
 
 TARGETS = ("type", "queue", "priority")
 RANDOM_STATE = 42
+# review thresholds evaluated on the held-out split (coverage = share auto-routed, accuracy = on that share)
+SWEEP_THRESHOLDS = tuple(round(0.30 + 0.05 * i, 2) for i in range(13))
 
 
 def ticket_text(subject: str | None, body: str) -> str:
@@ -44,6 +46,22 @@ class TrainResult:
     metrics: dict
 
 
+def threshold_sweep(proba, classes, y_true) -> list[dict]:
+    """For each threshold: how many tickets would be auto-routed and how accurate those routes are."""
+    conf = proba.max(axis=1)
+    pred = classes[proba.argmax(axis=1)]
+    rows = []
+    for t in SWEEP_THRESHOLDS:
+        mask = conf >= t
+        n = int(mask.sum())
+        rows.append({
+            "threshold": t,
+            "coverage": round(n / len(conf), 4),
+            "accuracy": round(float((pred[mask] == y_true[mask]).mean()), 4) if n else None,
+        })
+    return rows
+
+
 def train(df: pd.DataFrame, test_size: float = 0.2) -> TrainResult:
     models: dict[str, Pipeline] = {}
     metrics: dict = {"n_tickets": int(len(df)), "test_size": test_size, "targets": {}}
@@ -66,6 +84,9 @@ def train(df: pd.DataFrame, test_size: float = 0.2) -> TrainResult:
             "per_class": classification_report(y_te, pred, output_dict=True, zero_division=0),
             "confusion_matrix": confusion_matrix(y_te, pred, labels=labels).tolist(),
         }
+        if target == "queue":
+            metrics["targets"][target]["threshold_sweep"] = threshold_sweep(
+                model.predict_proba(X_te), model.classes_, y_te)
         # final model is refit on all data for serving; reported metrics come from the held-out split
         models[target] = build_pipeline().fit(df["text"].values, df[target].values)
     metrics["trained_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")

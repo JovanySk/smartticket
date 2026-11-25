@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <!-- @include doc-head -->
+  <title data-i18n="faq.pageTitle">Preguntas frecuentes · SmartTicket</title>
+</head>
+<body class="page-doc">
+  <!-- @include sprite -->
+  <a class="skip" href="#main" data-i18n="a11y.skipMain">Saltar al contenido</a>
+  <!-- @include nav -->
+  <header class="doc-hero">
+    <div class="wrap doc-hero-inner">
+      <span class="tag"><span class="tag-text" data-i18n="faq.tag">Ayuda</span><span class="tag-num">08</span></span>
+      <h1 class="display doc-title" data-i18n="faq.title">Preguntas frecuentes</h1>
+      <p class="doc-lede" data-i18n="faq.lede">Lo que más nos preguntan sobre cómo clasifica SmartTicket y qué hace con tus tickets.</p>
+    </div>
+  </header>
+  <main id="main" class="doc wrap">
+    <div class="faq">
+      <details open><summary data-i18n="faq.q1">¿Qué hace SmartTicket exactamente?</summary><p data-i18n="faq.a1">Lee el asunto y el mensaje de un ticket y predice tres cosas: el tipo (incidente, solicitud, problema o cambio), el área que debe atenderlo (entre 10) y la prioridad (baja, media o alta). Cada predicción trae su nivel de confianza.</p></details>
+      <details><summary data-i18n="faq.q2">¿Qué pasa si la IA no está segura?</summary><p data-i18n="faq.a2">Si la confianza del área queda por debajo del umbral, el ticket no se envía solo: entra a la bandeja de revisión del panel y una persona del equipo elige el área. El panel registra quién lo asignó y cuándo.</p></details>
+      <details><summary data-i18n="faq.q3">¿Qué tan seguido acierta?</summary><p data-i18n="faq.a3">Depende del umbral. Medido con tickets que el modelo nunca vio, con un umbral de 0.50 se envía solo alrededor de uno de cada cinco tickets, y en ese grupo acierta cerca de 85 de cada 100 veces. El resto pasa por tu equipo. El tablero de umbrales de la página principal muestra otros puntos.</p></details>
+      <details><summary data-i18n="faq.q4">¿En qué idioma debo escribir?</summary><p data-i18n="faq.a4">El modelo se entrenó con tickets en inglés. Puedes escribir en otro idioma, pero la confianza bajará y lo más probable es que el ticket pase a revisión humana. La interfaz sí está disponible en seis idiomas.</p></details>
+      <details><summary data-i18n="faq.q5">¿Qué significa «Por las palabras»?</summary><p data-i18n="faq.a5">Son los términos del ticket que más empujaron al modelo hacia el área elegida. Se calculan con el propio modelo: el peso de cada término en el ticket multiplicado por su coeficiente para esa área. No es un texto inventado para justificar la decisión.</p></details>
+      <details><summary data-i18n="faq.q6">¿El modelo aprende de las asignaciones del equipo?</summary><p data-i18n="faq.a6">No de forma automática. Las asignaciones quedan guardadas, pero el modelo solo cambia cuando alguien lo vuelve a entrenar. Así ninguna decisión aislada altera su comportamiento sin que nadie lo revise.</p></details>
+      <details><summary data-i18n="faq.q7">¿Cómo lo conecto con mi sistema?</summary><p data-i18n="faq.a7">Con la API REST. POST /tickets clasifica, guarda y enruta un ticket; POST /predict solo lo clasifica, sin guardar nada. La documentación interactiva está en /docs.</p></details>
+      <details><summary data-i18n="faq.q8">¿Quién puede cambiar el umbral?</summary><p data-i18n="faq.a8">Solo las cuentas de administración, desde Umbral y áreas en el panel. Se puede mover entre 0.30 y 0.90 y se aplica a los tickets nuevos.</p></details>
+    </div>
+    <aside class="doc-aside">
+      <p data-i18n="faq.more">¿No encontraste tu respuesta?</p>
+      <a class="btn btn-ink" href="/contact"><span data-i18n="faq.contact">Escríbenos</span><svg class="btn-arrow" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+    </aside>
+  </main>
+  <div class="doc-foot"><div class="wrap"><!-- @include footer-compact --></div></div>
+</body>
+</html>

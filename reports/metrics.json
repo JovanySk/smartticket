@@ -294,6 +294,73 @@
           19,
           378
         ]
+      ],
+      "threshold_sweep": [
+        {
+          "threshold": 0.3,
+          "coverage": 0.6696,
+          "accuracy": 0.6287
+        },
+        {
+          "threshold": 0.35,
+          "coverage": 0.5052,
+          "accuracy": 0.678
+        },
+        {
+          "threshold": 0.4,
+          "coverage": 0.3715,
+          "accuracy": 0.746
+        },
+        {
+          "threshold": 0.45,
+          "coverage": 0.27,
+          "accuracy": 0.8199
+        },
+        {
+          "threshold": 0.5,
+          "coverage": 0.2055,
+          "accuracy": 0.8531
+        },
+        {
+          "threshold": 0.55,
+          "coverage": 0.1547,
+          "accuracy": 0.9024
+        },
+        {
+          "threshold": 0.6,
+          "coverage": 0.1249,
+          "accuracy": 0.943
+        },
+        {
+          "threshold": 0.65,
+          "coverage": 0.1061,
+          "accuracy": 0.9526
+        },
+        {
+          "threshold": 0.7,
+          "coverage": 0.0885,
+          "accuracy": 0.9716
+        },
+        {
+          "threshold": 0.75,
+          "coverage": 0.0788,
+          "accuracy": 0.984
+        },
+        {
+          "threshold": 0.8,
+          "coverage": 0.0667,
+          "accuracy": 0.9874
+        },
+        {
+          "threshold": 0.85,
+          "coverage": 0.0553,
+          "accuracy": 0.9848
+        },
+        {
+          "threshold": 0.9,
+          "coverage": 0.0474,
+          "accuracy": 0.9823
+        }
       ]
     },
     "priority": {
@@ -359,5 +426,5 @@
       ]
     }
   },
-  "trained_at": "2026-11-24T20:41:29+00:00"
+  "trained_at": "2026-11-25T21:47:23+00:00"
 }
