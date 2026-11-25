@@ -104,6 +104,28 @@ body.page-login { background: var(--night); color: var(--white); }
 .btn-enter:hover { transform: translateY(-2px); box-shadow: 0 10px 24px -10px rgba(86, 199, 200, .7); }
 .btn-enter:hover .enter-circle svg { transform: translateX(4px); }
 .btn-enter:disabled { opacity: .7; cursor: progress; transform: none; }
+.card-switch { margin-top: 18px; text-align: center; font-size: 15px; color: var(--body-dark); }
+.card-switch a { color: var(--teal-on-dark); font-weight: 600; text-underline-offset: 3px; }
+.card-switch a:hover { color: var(--white); }
+a.btn-enter { text-decoration: none; }
+.register-card { margin-top: 24px; }
+.register-card .field { margin-top: 14px; }
+.register-card .pw-wrap .dark-input { padding-right: 84px; }
+.register-card .pw-toggle { padding: 0 10px; font-size: 13.5px; }
+.register-card .login-lede { margin-bottom: 4px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+.field-row .field { align-content: start; }
+.login-error.info { background: rgba(112, 208, 208, .12); color: var(--body-dark); }
+.field-msg { color: #FFC9C4; font-size: 13.5px; }
+.field-msg:empty { display: none; }
+.rules { margin-top: 10px; font-size: 13px; color: var(--muted-dark); }
+.select-dark { position: relative; }
+.select-dark select { appearance: none; padding-right: 44px; cursor: pointer; }
+.select-dark select option { color: var(--ink); background: var(--white); }
+.select-dark svg { position: absolute; right: 16px; top: 17px; width: 18px; height: 18px; color: var(--muted-dark); pointer-events: none; }
+.hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.register-done { outline: none; }
+.done-note { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: rgba(112, 208, 208, .1); color: var(--body-dark); font-size: 14px; line-height: 1.5; }
 .dev-hint { margin-top: 18px; font-size: 12.5px; line-height: 1.6; color: var(--muted-dark); }
 .dev-hint code { font-family: var(--f-mono); font-size: 12px; color: var(--teal-on-dark); }
 .dev-hint[data-dev="0"] { display: none; }
@@ -122,6 +144,7 @@ body.page-login { background: var(--night); color: var(--white); }
   .login-side { padding: 20px 16px 24px; }
   .login-card { margin: 32px 0 0; }
 }
+@media (max-width: 560px) { .field-row { grid-template-columns: 1fr; } }
 @media (max-width: 420px) {
   .login-card { padding: 24px 20px; border-radius: 24px; }
   .perf-dark { margin-left: -20px; margin-right: -20px; }

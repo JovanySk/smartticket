@@ -38,6 +38,7 @@
     setCount("revision", counts.revision);
     setCount("enviado", counts.enviado);
     setCount("unread", state.me.unread_messages || 0);
+    setCount("requests", state.me.pending_requests || 0);
     document.body.classList.toggle("locked", user.must_change_password);
   }
 
@@ -325,7 +326,23 @@
   async function renderTeam() {
     const res = await api("/api/panel/team");
     if (!res.ok) return handleError(res);
-    const { items, me } = res.data;
+    const { items, me, requests } = res.data;
+    state.me.pending_requests = requests.length;
+    renderChrome();
+    const requestCard = requests.length ? `
+          <section class="card requests" aria-labelledby="req-title">
+            <h2 class="card-title" id="req-title">${esc(t("panel.requestsTitle"))} <span class="count count-teal">${requests.length}</span></h2>
+            <p class="card-sub">${esc(t("panel.requestsSub"))}</p>
+            <ul class="req-list">${requests.map((u) => `
+              <li>
+                <div class="req-who"><strong>${esc(u.name)}</strong><span>${esc(u.email)}</span></div>
+                <div class="req-meta"><span>${esc(u.area ? queue(u.area) : t("panel.noArea"))}</span><time datetime="${esc(u.created_at)}">${esc(date(u.created_at))}</time></div>
+                <div class="req-actions">
+                  <button type="button" class="btn btn-indigo btn-sm" data-approve="${u.id}" data-name="${esc(u.name)}">${esc(t("panel.approve"))}</button>
+                  <button type="button" class="btn btn-ghost btn-sm" data-reject="${u.id}" data-name="${esc(u.name)}">${esc(t("panel.reject"))}</button>
+                </div>
+              </li>`).join("")}</ul>
+          </section>` : "";
     const areaOpts = `<option value="">${esc(t("panel.noArea"))}</option>` + state.me.queues.map((q) => `<option value="${esc(q)}">${esc(queue(q))}</option>`).join("");
     main.replaceChildren(h(`
       <div class="page">
@@ -334,6 +351,7 @@
           <h1 class="display page-title">${esc(t("panel.titleTeam"))}</h1>
           <p class="page-sub">${esc(t("panel.subTeam"))}</p>
         </div></header>
+        ${requestCard}
         <div class="team-grid">
           <section class="card">
             <table class="table team-table">
@@ -380,6 +398,15 @@
       await renderTeam();
       showSecret(r.data.user.name, r.data.temp_password);
     });
+    const decide = (attr, action, toastKey) => $$(`[${attr}]`).forEach((b) => b.addEventListener("click", async () => {
+      b.disabled = true;
+      const r = await api(`/api/panel/team/${b.getAttribute(attr)}/${action}`, { method: "POST" });
+      if (!r.ok) { b.disabled = false; toast(errorText(r), "err"); return; }
+      toast(t(toastKey, { name: b.dataset.name }));
+      renderTeam();
+    }));
+    decide("data-approve", "approve", "panel.approvedToast");
+    decide("data-reject", "reject", "panel.rejectedToast");
     $$("[data-reset]").forEach((b) => b.addEventListener("click", async () => {
       const r = await api(`/api/panel/team/${b.dataset.reset}/reset`, { method: "POST" });
       if (!r.ok) { toast(errorText(r), "err"); return; }

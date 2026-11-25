@@ -29,10 +29,11 @@ The full sweep (0.30 to 0.90 in 0.05 steps) is computed at training time and sto
 
 - **Landing page with the real classifier.** The ticket-shaped form posts to `POST /tickets`; the ticket is stored, routed and shown as a ticket stub with type, area, priority, top-3 queues, latency and a rubber stamp: *auto-sent* or *to review*. A batch mode handles up to 10 tickets at once.
 - **Explanations computed from the model.** For the predicted queue, each term contributes `tfidf_value × coefficient[queue, term]` to that class's score; the three largest positive contributions are returned as `top_words` (see `smartticket/inference.py`). Nothing is generated or hand-written.
+- **Self-registration with admin approval.** New agents request access at `/registro` (linked from the login card): name, work e-mail, area and password. The account starts as *pending* and cannot sign in until an admin approves it in *Team*; a rejected request behaves like an unknown e-mail.
 - **Staff panel** (`/panel`, login required):
   - *Review inbox*: filters (all / urgent / oldest), search, the model's top 3 areas with bars, the words behind the top prediction, *Assign and stamp* (records who and when) and *Leave for later*. Keyboard: `1`–`3` pick an area, `Enter` assigns, `J`/`K` move, `/` searches.
   - *Auto-sent* and *All tickets* views.
-  - Admin only: *Threshold and areas* (0.30–0.90, persisted and used for routing; a split-flap board with live counts and the expected accuracy from the held-out sweep), *Team* (create agents with a one-time temporary password, reset, deactivate) and *Contact messages*.
+  - Admin only: *Threshold and areas* (0.30–0.90, persisted and used for routing; a split-flap board with live counts and the expected accuracy from the held-out sweep), *Team* (approve or reject access requests, create agents with a one-time temporary password, reset, deactivate; the sidebar shows a badge while requests are waiting) and *Contact messages*.
 - **Help pages**: FAQ, privacy notice, terms of use and a working contact form (validation, honeypot, rate limit, stored in SQLite, readable by admins).
 - **Six languages**: Spanish (default), English, Portuguese, Simplified Chinese, French and Japanese. Pages are translated on the server (no flash of the wrong language) and can be switched live from the globe menu; the choice is kept in a cookie and `localStorage`. Ticket content is never translated. Chinese and Japanese use system fonts instead of multi-megabyte web fonts.
 - **Accessible and responsive**: keyboard navigation, visible focus, WCAG AA colour contrast, layouts down to phone width. Every animation (route lines, a mini ticket travelling to the agent who gets it, the typing bubble, the stamp, split-flap digits, the login sorting cabinet) is plain CSS / JavaScript, never moves over text and is switched off under `prefers-reduced-motion`.
@@ -44,6 +45,8 @@ The model was trained on English tickets, so the sample tickets are in English a
 | ![Result ticket with confidence and stamp](docs/screenshots/02-result.png) | ![Review inbox with a selected ticket](docs/screenshots/04-inbox.png) |
 | **Login** | **English UI** |
 | ![Login page with the sorting cabinet](docs/screenshots/03-login.png) | ![Landing page in English](docs/screenshots/06-landing-en.png) |
+| **Request access** | |
+| ![Self-registration form](docs/screenshots/08-register.png) | |
 
 <p><img src="docs/screenshots/05-language-menu.png" alt="Language menu" width="360"> <img src="docs/screenshots/07-mobile.png" alt="Mobile layout" width="260"></p>
 
@@ -54,6 +57,7 @@ The model was trained on English tickets, so the sample tickets are in English a
 - **CSRF**: every state-changing panel request must send the session's CSRF token in `X-CSRF-Token`. The pre-login forms (login, contact) use a double-submit token: a `SameSite=Strict` cookie plus the same value in the page.
 - **Brute force**: login is limited to 5 attempts per minute per IP, and an account locks for 15 minutes after 5 consecutive failures. Errors are generic, and unknown e-mails cost the same hashing time as wrong passwords.
 - **Roles**: `admin` and `agente`. Admin pages and endpoints return 403 for agents. Accounts created by an admin get a temporary password and must change it before they can use the panel.
+- **Self-registration** is CSRF-protected, has a honeypot, is limited to 3 requests per 10 minutes per IP, applies the same password rule and always answers the same way, so it cannot be used to find out which e-mails have accounts. Only the `agente` role can be requested. A pending account is told it is waiting for approval only after its password has been verified; with a wrong password the error stays generic.
 - **No default credentials in production**: the first admin comes from `SMARTTICKET_ADMIN_EMAIL` / `SMARTTICKET_ADMIN_PASSWORD`. Demo accounts exist only when `SMARTTICKET_ENV=dev`.
 - **Headers**: a strict Content-Security-Policy with no inline scripts or styles and `frame-ancestors 'none'`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `X-Frame-Options: DENY`, `Permissions-Policy`, and HSTS outside dev. `/docs` gets a looser policy because Swagger UI loads from a CDN.
 - Public ticket submission is rate-limited (30 per minute per IP); the contact form allows 3 messages per 10 minutes. Rate limits are in memory, so they apply per process.
@@ -99,7 +103,7 @@ python -m smartticket.train                        # downloads the dataset and t
 SMARTTICKET_ENV=dev uvicorn smartticket.api:app --reload
 # open http://localhost:8000/ ; staff log in at http://localhost:8000/login
 
-pytest -q                                          # 48 tests
+pytest -q                                          # 56 tests
 ```
 
 Demo accounts (**only** with `SMARTTICKET_ENV=dev`):
@@ -148,13 +152,14 @@ There is no build step: plain HTML, CSS and JavaScript, and no runtime dependenc
 
 ## Tests
 
-There are **48 pytest tests**. They train on a small offline fixture, so they need no network, and they cover:
+There are **56 pytest tests**. They train on a small offline fixture, so they need no network, and they cover:
 - training, metrics and the threshold sweep; every public endpoint and input validation;
 - that the explanation words are exactly the top `tfidf × coefficient` terms of the fitted pipeline;
 - storage and routing by threshold, and batch submission;
 - login success and generic failures, cookie flags, the per-IP rate limit, account lockout, POST-only logout, scrypt hashes and no default admin in production;
 - CSRF rejection, role protection, the assign / defer flow, filters and search, threshold changes, temporary passwords and deactivation;
 - the contact form (validation, honeypot, rate limit, admin inbox);
+- self-registration: pending accounts, the generic answer for existing e-mails, CSRF, honeypot, rate limit, password rules, and admin-only approve / reject;
 - pages, footer links, security headers, rendering in each language, and that all six locale files have every key with matching placeholders.
 
 CI also retrains on the real dataset and runs a **quality gate**: type macro F1 ≥ 0.80, queue ≥ 0.45, and every target must be at least twice its baseline.

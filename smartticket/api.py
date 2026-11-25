@@ -98,6 +98,15 @@ class NewMember(BaseModel):
     area: str | None = Field(default=None, max_length=100)
 
 
+class Register(BaseModel):
+    name: str = Field(default="", max_length=200)
+    email: str = Field(default="", max_length=254)
+    area: str = Field(default="", max_length=100)
+    password: str = Field(default="", max_length=200)
+    confirm: str = Field(default="", max_length=200)
+    website: str = Field(default="", max_length=200)  # honeypot
+
+
 class Contact(BaseModel):
     name: str = Field(default="", max_length=200)
     email: str = Field(default="", max_length=254)
@@ -342,6 +351,12 @@ def register_pages(app: FastAPI, ctx: Ctx) -> None:
             return RedirectResponse("/panel", status_code=303)
         return html_page(request, "login")
 
+    @app.get("/registro", response_class=HTMLResponse, include_in_schema=False)
+    def register_page(request: Request):
+        if session_user(request) is not None:
+            return RedirectResponse("/panel", status_code=303)
+        return html_page(request, "register", {"queues": json.dumps(ctx.queues())})
+
     @app.get("/panel", response_class=HTMLResponse, include_in_schema=False)
     @app.get("/panel/{section}", response_class=HTMLResponse, include_in_schema=False)
     def panel_page(request: Request, section: str = "revision"):
@@ -452,6 +467,8 @@ def auth_router() -> APIRouter:
         s = ctx.settings
         rate_limit(request, "login", s.login_limit_per_minute, 60)
         user = ctx.store.user_by_email(body.email) if EMAIL_RE.match(body.email.strip()) else None
+        if user is not None and user["status"] == "rechazado":
+            user = None  # rejected requests behave exactly like unknown e-mails
         locked = bool(user and user["locked_until"] and user["locked_until"] > iso(now()))
         if user is None or not user["active"] or locked:
             verify_password(body.password, DUMMY_HASH)  # same cost as a real check
@@ -464,6 +481,10 @@ def auth_router() -> APIRouter:
             else:
                 ctx.store.update_user(user["id"], failed_attempts=failed)
             raise HTTPException(status_code=401, detail="invalid_credentials")
+        if user["status"] == "pendiente":
+            # only revealed once the password is proven, so it cannot be used to probe e-mails
+            ctx.store.update_user(user["id"], failed_attempts=0)
+            raise HTTPException(status_code=403, detail="pending_approval")
 
         ctx.store.update_user(user["id"], failed_attempts=0, locked_until=None, last_login_at=iso(now()))
         token = new_token()
@@ -472,6 +493,39 @@ def auth_router() -> APIRouter:
         set_cookie(response, s, SESSION_COOKIE, token,
                    max_age=int(lifetime.total_seconds()) if body.remember else None)
         return {"ok": True, "must_change_password": bool(user["must_change_password"]), "redirect": "/panel"}
+
+    @r.post("/register", status_code=202, dependencies=[Depends(require_anon_csrf)])
+    def register(body: Register, request: Request) -> dict:
+        """Self-registration: creates a pending 'agente' account that an admin must approve."""
+        generic = {"ok": True}
+        if body.website.strip():  # honeypot
+            return generic
+        ctx = ctx_of(request)
+        name, email = body.name.strip(), body.email.strip()
+        errors = {}
+        if len(name) < 2:
+            errors["name"] = "name_required"
+        if not EMAIL_RE.match(email):
+            errors["email"] = "email_invalid"
+        if body.area not in ctx.queues():
+            errors["area"] = "area_required"
+        problem = password_problem(body.password)
+        if problem:
+            errors["password"] = problem
+        elif body.confirm != body.password:
+            errors["confirm"] = "password_mismatch"
+        if errors:
+            raise HTTPException(status_code=422, detail={"fields": errors})
+        rate_limit(request, "register", 3, 600)
+        pw_hash = hash_password(body.password)  # hashed in every branch so timing does not leak existence
+        existing = ctx.store.user_by_email(email)
+        if existing is None:
+            ctx.store.create_user(email, name[:80], "agente", pw_hash, area=body.area, status="pendiente")
+        elif existing["status"] == "rechazado":
+            ctx.store.update_user(existing["id"], name=name[:80], area=body.area, password_hash=pw_hash,
+                                  status="pendiente", created_at=iso(now()), failed_attempts=0, locked_until=None)
+        # an existing active or pending account is left untouched; the answer is the same either way
+        return generic
 
     @r.post("/logout")
     def logout(request: Request, response: Response, user=Depends(require_user)) -> dict:
@@ -508,6 +562,7 @@ def panel_router() -> APIRouter:
                "queues": ctx.queues()}
         if user["role"] == "admin":
             out["unread_messages"] = ctx.store.unread_messages()
+            out["pending_requests"] = ctx.store.count_requests()
         return out
 
     @r.get("/tickets")
@@ -560,7 +615,29 @@ def panel_router() -> APIRouter:
 
     @r.get("/team")
     def team(request: Request, user=Depends(require_admin)) -> dict:
-        return {"items": [user_public(u) for u in ctx_of(request).store.users()], "me": user["id"]}
+        store = ctx_of(request).store
+        requests = [{**user_public(u), "created_at": u["created_at"]} for u in store.access_requests()]
+        return {"items": [user_public(u) for u in store.users()], "requests": requests, "me": user["id"]}
+
+    def pending(ctx: Ctx, user_id: int):
+        target = ctx.store.user_by_id(user_id)
+        if target is None or target["status"] != "pendiente":
+            raise HTTPException(status_code=404, detail="not_found")
+        return target
+
+    @r.post("/team/{user_id}/approve")
+    def approve(user_id: int, request: Request, user=Depends(require_admin)) -> dict:
+        ctx = ctx_of(request)
+        pending(ctx, user_id)
+        ctx.store.update_user(user_id, status="aprobado", active=1)
+        return {"ok": True}
+
+    @r.post("/team/{user_id}/reject")
+    def reject(user_id: int, request: Request, user=Depends(require_admin)) -> dict:
+        ctx = ctx_of(request)
+        pending(ctx, user_id)
+        ctx.store.update_user(user_id, status="rechazado")
+        return {"ok": True}
 
     @r.post("/team", status_code=201)
     def add_member(body: NewMember, request: Request, user=Depends(require_admin)) -> dict:
@@ -568,8 +645,11 @@ def panel_router() -> APIRouter:
         email = body.email.strip()
         if not EMAIL_RE.match(email):
             raise HTTPException(status_code=400, detail="email_invalid")
-        if ctx.store.user_by_email(email) is not None:
+        existing = ctx.store.user_by_email(email)
+        if existing is not None and existing["status"] != "rechazado":
             raise HTTPException(status_code=409, detail="email_taken")
+        if existing is not None:
+            ctx.store.delete_user(existing["id"])  # a rejected request does not block a real account
         if body.area and body.area not in ctx.queues():
             raise HTTPException(status_code=400, detail="unknown_queue")
         password = temp_password()

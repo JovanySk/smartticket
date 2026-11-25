@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT NOT NULL,
     must_change_password INTEGER NOT NULL DEFAULT 0,
     active INTEGER NOT NULL DEFAULT 1,
+    -- self-registered accounts start as 'pendiente' until an admin approves or rejects them
+    status TEXT NOT NULL DEFAULT 'aprobado' CHECK (status IN ('aprobado', 'pendiente', 'rechazado')),
     failed_attempts INTEGER NOT NULL DEFAULT 0,
     locked_until TEXT,
     created_at TEXT NOT NULL,
@@ -99,6 +101,9 @@ class Store:
         with self.conn() as c:
             c.execute("PRAGMA journal_mode = WAL")
             c.executescript(SCHEMA)
+            cols = {r[1] for r in c.execute("PRAGMA table_info(users)")}
+            if "status" not in cols:  # databases created before self-registration existed
+                c.execute("ALTER TABLE users ADD COLUMN status TEXT NOT NULL DEFAULT 'aprobado'")
 
     # ----- settings -------------------------------------------------------------------------------
     def get_setting(self, key: str, default: str | None = None) -> str | None:
@@ -125,19 +130,32 @@ class Store:
 
     def users(self) -> list[sqlite3.Row]:
         with self.conn() as c:
-            return c.execute("SELECT * FROM users ORDER BY active DESC, role, name").fetchall()
+            return c.execute("SELECT * FROM users WHERE status = 'aprobado' "
+                             "ORDER BY active DESC, role, name").fetchall()
+
+    def access_requests(self) -> list[sqlite3.Row]:
+        with self.conn() as c:
+            return c.execute("SELECT * FROM users WHERE status = 'pendiente' ORDER BY created_at").fetchall()
+
+    def count_requests(self) -> int:
+        with self.conn() as c:
+            return c.execute("SELECT COUNT(*) FROM users WHERE status = 'pendiente'").fetchone()[0]
+
+    def delete_user(self, user_id: int) -> None:
+        with self.conn() as c:
+            c.execute("DELETE FROM users WHERE id = ?", (user_id,))
 
     def count_admins(self) -> int:
         with self.conn() as c:
-            return c.execute("SELECT COUNT(*) FROM users WHERE role = 'admin' AND active = 1").fetchone()[0]
+            return c.execute("SELECT COUNT(*) FROM users WHERE role = 'admin' AND active = 1 AND status = 'aprobado'").fetchone()[0]
 
     def create_user(self, email: str, name: str, role: str, password_hash: str, *,
-                    area: str | None = None, must_change: bool = False) -> int:
+                    area: str | None = None, must_change: bool = False, status: str = "aprobado") -> int:
         with self.conn() as c:
             cur = c.execute(
-                "INSERT INTO users(email, name, role, area, password_hash, must_change_password, created_at) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (email.strip(), name.strip(), role, area, password_hash, int(must_change), iso(now())))
+                "INSERT INTO users(email, name, role, area, password_hash, must_change_password, created_at, status) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (email.strip(), name.strip(), role, area, password_hash, int(must_change), iso(now()), status))
             return int(cur.lastrowid)
 
     def update_user(self, user_id: int, **fields) -> None:
@@ -156,7 +174,7 @@ class Store:
         with self.conn() as c:
             return c.execute(
                 "SELECT s.csrf_token, s.expires_at, u.* FROM sessions s JOIN users u ON u.id = s.user_id "
-                "WHERE s.token_hash = ? AND s.expires_at > ? AND u.active = 1",
+                "WHERE s.token_hash = ? AND s.expires_at > ? AND u.active = 1 AND u.status = 'aprobado'",
                 (token_hash, iso(now()))).fetchone()
 
     def delete_session(self, token_hash: str) -> None:

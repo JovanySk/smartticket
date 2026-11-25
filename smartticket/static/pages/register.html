@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <!-- @include head -->
+  <title data-i18n="register.pageTitle">Solicitar acceso · SmartTicket</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="/static/css/login.css">
+  <script src="/static/js/login.js" defer></script>
+  <script src="/static/js/register.js" defer></script>
+</head>
+<body class="page-login">
+  <!-- @include sprite -->
+  <div class="login">
+    <section class="cabinet-side" data-i18n-attr="aria-label:login.headline" aria-label="Cada ticket, en manos correctas.">
+      <div class="cabinet-head">
+        <a class="brand" href="/"><svg class="brand-mark" aria-hidden="true"><use href="#i-logo"/></svg><span>SmartTicket</span></a>
+        <p class="display cab-title" data-i18n="login.headline">Cada ticket, en manos correctas.</p>
+        <p class="cab-sub" data-i18n="login.sub">La IA clasifica. Tu equipo decide cuando hace falta.</p>
+      </div>
+      <div class="cabinet" aria-hidden="true">
+        <img src="/static/img/clasificador.webp" alt="" width="1024" height="1280">
+        <span class="plate plate-1"><i class="dot dot-teal"></i><span data-i18n="login.plate1">Facturación</span></span>
+        <span class="plate plate-2"><i class="dot dot-lav"></i><span data-i18n="login.plate2">Soporte TI</span></span>
+        <span class="plate plate-3"><i class="dot dot-coral"></i><span data-i18n="login.plate3">A revisión</span></span>
+        <div class="flying" data-to="1">
+          <div class="fly-main"><span class="fly-code">ST-20491</span><strong data-i18n="login.t1">Cobro doble</strong><span class="fly-ago" data-i18n="login.ago">hace 2 s</span></div>
+          <div class="fly-side"></div>
+          <span class="fly-stamp" data-i18n="login.plate1">Facturación</span>
+        </div>
+        <div class="flying" data-to="2">
+          <div class="fly-main"><span class="fly-code">ST-20492</span><strong data-i18n="login.t2">La VPN no conecta</strong><span class="fly-ago" data-i18n="login.ago">hace 2 s</span></div>
+          <div class="fly-side"></div>
+          <span class="fly-stamp" data-i18n="login.plate2">Soporte TI</span>
+        </div>
+        <div class="flying review" data-to="3">
+          <div class="fly-main"><span class="fly-code">ST-20493</span><strong data-i18n="login.t3">Vacaciones</strong><span class="fly-ago" data-i18n="login.ago">hace 2 s</span></div>
+          <div class="fly-side"></div>
+          <span class="fly-stamp" data-i18n="login.plate3">A revisión</span>
+        </div>
+      </div>
+    </section>
+
+    <main class="login-side" id="main">
+      <div class="login-top on-dark">
+        <a class="brand brand-mobile" href="/"><svg class="brand-mark" aria-hidden="true"><use href="#i-logo"/></svg><span>SmartTicket</span></a>
+        <!-- @include langmenu -->
+      </div>
+
+      <form class="login-card register-card" id="register-form" data-queues="{{queues}}" novalidate>
+        <div id="register-fields">
+          <span class="tag"><span class="tag-text" data-i18n="register.tag">Nuevo en el equipo</span><span class="tag-num">+1</span></span>
+          <h1 class="display login-title" data-i18n="register.title">Solicita acceso</h1>
+          <p class="login-lede" data-i18n="register.lede">Crea tu cuenta de agente. Podrás entrar al panel cuando un administrador apruebe tu solicitud.</p>
+
+          <div class="field">
+            <label for="r-name" data-i18n="register.name">Nombre completo</label>
+            <input class="dark-input" id="r-name" name="name" autocomplete="name" required maxlength="80" aria-describedby="r-name-err">
+            <p class="field-msg" id="r-name-err"></p>
+          </div>
+          <div class="field">
+            <label for="r-email" data-i18n="login.email">Correo de trabajo</label>
+            <input class="dark-input" id="r-email" name="email" type="email" autocomplete="email" required maxlength="254" data-i18n-attr="placeholder:login.emailPh" placeholder="agente@tuempresa.com" aria-describedby="r-email-err">
+            <p class="field-msg" id="r-email-err"></p>
+          </div>
+          <div class="field">
+            <label for="r-area" data-i18n="register.area">Área</label>
+            <div class="select-dark">
+              <select class="dark-input" id="r-area" name="area" required aria-describedby="r-area-err">
+                <option value="" data-i18n="register.areaPh">Elige tu área</option>
+              </select>
+              <svg aria-hidden="true"><use href="#i-chevron"/></svg>
+            </div>
+            <p class="field-msg" id="r-area-err"></p>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="r-password" data-i18n="login.password">Contraseña</label>
+              <div class="pw-wrap">
+                <input class="dark-input" id="r-password" name="password" type="password" autocomplete="new-password" required maxlength="200" aria-describedby="r-rules r-password-err">
+                <button type="button" class="pw-toggle" data-toggle="r-password" aria-controls="r-password" aria-pressed="false" data-i18n="login.show">Mostrar</button>
+              </div>
+              <p class="field-msg" id="r-password-err"></p>
+            </div>
+            <div class="field">
+              <label for="r-confirm" data-i18n="register.confirm">Confirmar contraseña</label>
+              <input class="dark-input" id="r-confirm" name="confirm" type="password" autocomplete="new-password" required maxlength="200" aria-describedby="r-confirm-err">
+              <p class="field-msg" id="r-confirm-err"></p>
+            </div>
+          </div>
+          <p class="rules" id="r-rules" data-i18n="panel.pwRules">Al menos 10 caracteres, con letras y números.</p>
+          <div class="hp" aria-hidden="true"><label for="r-website">Website</label><input id="r-website" name="website" tabindex="-1" autocomplete="off"></div>
+          <p class="login-error" id="register-error" role="alert"></p>
+
+          <div class="perf perf-dark" aria-hidden="true"></div>
+
+          <button type="submit" class="btn-enter" id="register-send">
+            <span data-i18n="register.submit">Enviar solicitud</span>
+            <span class="enter-circle" aria-hidden="true"><svg><use href="#i-arrow"/></svg></span>
+          </button>
+          <p class="card-switch"><span data-i18n="register.haveAccount">¿Ya tienes cuenta?</span> <a href="/login" data-i18n="register.signIn">Inicia sesión</a></p>
+        </div>
+
+        <div class="register-done" id="register-done" tabindex="-1" hidden>
+          <span class="tag"><span class="tag-text" data-i18n="register.doneTag">Solicitud enviada</span><span class="tag-num">+1</span></span>
+          <h1 class="display login-title" data-i18n="register.doneTitle">Ya casi estás dentro.</h1>
+          <p class="login-lede" data-i18n="register.doneText">Si el correo es válido, tu solicitud quedó registrada. Un administrador debe aprobarla antes de que puedas entrar al panel.</p>
+          <p class="done-note" data-i18n="register.doneNote">No hace falta volver a enviarla. Cuando la aprueben, entra con el correo y la contraseña que elegiste.</p>
+          <div class="perf perf-dark" aria-hidden="true"></div>
+          <a class="btn-enter" href="/login"><span data-i18n="register.toLogin">Ir a iniciar sesión</span><span class="enter-circle" aria-hidden="true"><svg><use href="#i-arrow"/></svg></span></a>
+        </div>
+      </form>
+
+      <p class="login-foot"><span data-i18n="footer.rights">© 2026 SmartTicket. Todos los derechos reservados.</span> <a href="/" data-i18n="login.back">Volver al inicio</a></p>
+    </main>
+  </div>
+</body>
+</html>

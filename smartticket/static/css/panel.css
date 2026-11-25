@@ -162,6 +162,17 @@ select.input { appearance: auto; }
 .secret { margin-top: 20px; padding: 16px 18px; border-radius: 14px; background: var(--teal-soft); outline: none; }
 .secret code { display: inline-block; margin: 8px 12px 8px 0; padding: 8px 12px; border-radius: 8px; background: var(--white); font-size: 16px; letter-spacing: .04em; }
 .secret .btn { min-height: 38px; padding: 0 14px; }
+.requests { margin-bottom: 24px; box-shadow: inset 3px 0 0 var(--teal), var(--shadow-sm); }
+.requests .card-title { display: flex; align-items: center; gap: 10px; }
+.requests .count { margin-left: 0; }
+.req-list { margin-top: 10px; }
+.req-list li { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) auto; align-items: center; gap: 12px 20px; padding: 14px 0; border-top: 1px solid var(--line); }
+.req-who, .req-meta { display: grid; gap: 2px; min-width: 0; }
+.req-who strong { overflow-wrap: anywhere; }
+.req-who span, .req-meta time { font-size: 13.5px; color: var(--muted); overflow-wrap: anywhere; }
+.req-meta span { font-size: 14.5px; }
+.req-actions { display: flex; gap: 10px; }
+.btn-sm { min-height: 38px; padding: 0 16px; font-size: 14px; }
 .msgs { display: grid; gap: 14px; }
 .msg header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; font-size: 14.5px; }
 .msg header a { color: var(--indigo); }
@@ -200,4 +211,5 @@ select.input { appearance: auto; }
   .d-top li[data-q] { grid-template-columns: minmax(0, 1fr) 70px 40px; }
   .assign-btns { flex-direction: column; }
   .mini-board { grid-template-columns: 1fr; }
+  .req-list li { grid-template-columns: 1fr; }
 }

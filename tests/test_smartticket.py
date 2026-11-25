@@ -515,3 +515,91 @@ def test_store_initialises_schema(tmp_path):
     store = Store(tmp_path / "x" / "new.db")
     store.init()
     assert store.counts()["total"] == 0
+
+
+# ----- self-registration -------------------------------------------------------------------------
+NEW = {"name": "Marta Ruiz", "email": "marta@smartticket.test", "area": "Billing and Payments",
+       "password": "Facturas2026", "confirm": "Facturas2026"}
+
+
+def register(c: TestClient, **changes):
+    return c.post("/api/auth/register", json={**NEW, **changes}, headers=csrf(c))
+
+
+def test_register_page_is_linked_from_login(client):
+    assert 'href="/registro"' in client.get("/login").text
+    page = client.get("/registro")
+    assert page.status_code == 200 and "{{" not in page.text and "Billing and Payments" in page.text
+
+
+def test_registration_creates_a_pending_agent_that_cannot_log_in(client):
+    res = register(client)
+    assert res.status_code == 202 and res.json() == {"ok": True}
+    user = ctx(client).store.user_by_email(NEW["email"])
+    assert user["status"] == "pendiente" and user["role"] == "agente" and user["area"] == NEW["area"]
+    assert user["password_hash"].startswith("scrypt$")
+    # the pending state is only revealed once the password is right
+    assert login(client, (NEW["email"], "wrong-pass-1")).json() == {"detail": "invalid_credentials"}
+    pending = login(client, (NEW["email"], NEW["password"]))
+    assert pending.status_code == 403 and pending.json() == {"detail": "pending_approval"}
+    assert "st_session" not in pending.headers.get("set-cookie", "")
+
+
+def test_registration_does_not_reveal_existing_emails(client):
+    fresh = register(client, email="someone.new@smartticket.test")
+    taken = register(client, email=AGENT[0], name="Impostor")
+    assert fresh.status_code == taken.status_code == 202 and fresh.json() == taken.json()
+    agent = ctx(client).store.user_by_email(AGENT[0])
+    assert agent["name"] == "Ana Robles" and agent["status"] == "aprobado"  # existing account untouched
+    assert login(client, AGENT).status_code == 200
+
+
+def test_registration_validates_csrf_honeypot_and_password_rules(client):
+    client.get("/registro")
+    assert client.post("/api/auth/register", json=NEW).status_code == 403
+    bad = register(client, password="short", confirm="short", area="Nope", email="x")
+    assert bad.status_code == 422
+    assert bad.json()["detail"]["fields"] == {"email": "email_invalid", "area": "area_required", "password": "password_short"}
+    assert register(client, password="onlyletters", confirm="onlyletters").json()["detail"]["fields"] == {"password": "password_mix"}
+    assert register(client, confirm="Different2026").json()["detail"]["fields"] == {"confirm": "password_mismatch"}
+    assert register(client, website="http://spam").status_code == 202
+    assert ctx(client).store.user_by_email(NEW["email"]) is None
+
+
+def test_registration_is_rate_limited(client):
+    codes = [register(client, email=f"user{i}@smartticket.test").status_code for i in range(4)]
+    assert codes == [202, 202, 202, 429]
+
+
+def test_admin_approves_or_rejects_requests(client):
+    register(client)
+    register(client, email="other@smartticket.test", name="Otro Nombre")
+    login(client)
+    headers = session_csrf(client)
+    assert client.get("/api/panel/me").json()["pending_requests"] == 2
+    team = client.get("/api/panel/team").json()
+    reqs = {r["email"]: r["id"] for r in team["requests"]}
+    assert set(reqs) == {NEW["email"], "other@smartticket.test"}
+    assert NEW["email"] not in [u["email"] for u in team["items"]]
+
+    assert client.post(f"/api/panel/team/{reqs[NEW['email']]}/approve").status_code == 403  # CSRF
+    assert client.post(f"/api/panel/team/{reqs[NEW['email']]}/approve", headers=headers).status_code == 200
+    assert client.post(f"/api/panel/team/{reqs['other@smartticket.test']}/reject", headers=headers).status_code == 200
+    assert client.post(f"/api/panel/team/{reqs['other@smartticket.test']}/approve", headers=headers).status_code == 404
+    assert client.get("/api/panel/me").json()["pending_requests"] == 0
+
+    client.cookies.clear()
+    assert login(client, (NEW["email"], NEW["password"])).status_code == 200
+    client.cookies.clear()
+    rejected = login(client, ("other@smartticket.test", NEW["password"]))
+    assert rejected.status_code == 401 and rejected.json() == {"detail": "invalid_credentials"}
+
+
+def test_agents_cannot_approve_requests(client):
+    register(client)
+    uid = ctx(client).store.user_by_email(NEW["email"])["id"]
+    login(client, AGENT)
+    headers = session_csrf(client)
+    assert client.post(f"/api/panel/team/{uid}/approve", headers=headers).status_code == 403
+    assert client.post(f"/api/panel/team/{uid}/reject", headers=headers).status_code == 403
+    assert ctx(client).store.user_by_id(uid)["status"] == "pendiente"

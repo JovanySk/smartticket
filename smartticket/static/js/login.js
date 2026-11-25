@@ -8,6 +8,7 @@
   /* ---------- form ---------- */
   function initForm() {
     const form = $("#login-form");
+    if (!form) return; // the register page reuses this script only for the cabinet animation
     const email = $("#email");
     const pw = $("#password");
     const err = $("#login-error");
@@ -29,6 +30,7 @@
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       err.textContent = "";
+      err.classList.remove("info");
       [email, pw].forEach((i) => i.removeAttribute("aria-invalid"));
       if (!email.value.trim() || !pw.value) {
         err.textContent = t("err.loginEmpty");
@@ -45,6 +47,7 @@
       }
       btn.disabled = false;
       err.textContent = errorText(res);
+      err.classList.toggle("info", res.status === 403 && res.data && res.data.detail === "pending_approval");
       pw.value = "";
       pw.focus();
     });
